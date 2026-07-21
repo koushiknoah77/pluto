@@ -1,0 +1,17 @@
+node_modules/
+.next/
+coverage/
+
+# Local environment and generated runtime data
+.env.local
+.env.*.local
+.pluto-pilot/
+.pluto-final-smoke/
+.pluto-guard-smoke/
+.pluto-smoke-data-*/
+.pnpm-store/
+
+# Editor, operating-system, and compiler artefacts
+*.tsbuildinfo
+.DS_Store
+Thumbs.db
