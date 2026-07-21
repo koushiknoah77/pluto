@@ -1,6 +1,16 @@
 # Pluto
 
+<div align="center">
+
 ### Real problems. Guided learning. Proof that lasts.
+
+<sub>Teacher-controlled AI for community-connected learning</sub>
+
+`EDUCATION` &nbsp; `AI WITH GUARDRAILS` &nbsp; `NEXT.JS` &nbsp; `OPEN SOURCE PILOT`
+
+</div>
+
+---
 
 Pluto is a teacher-controlled learning workspace that connects schools with local community organisations.
 
@@ -18,6 +28,14 @@ A partner brings a real challenge. Pluto shapes it into a safe learning mission.
   <strong>Pluto Proof</strong>
 </p>
 
+## Contents
+
+| | | |
+| --- | --- | --- |
+| [Why Pluto](#why-pluto-exists) | [Product flow](#the-product-flow) | [AI contract](#honest-ai-by-design) |
+| [Assignment engine](#assignment-engine) | [Architecture](#technical-architecture) | [Run locally](#run-pluto-locally) |
+| [Build Week](#openai-build-week) | [Production boundary](#production-boundary) | [Contributing](#contributing-and-security) |
+
 ## Why Pluto exists
 
 Schools want learning to feel useful beyond the classroom. Community organisations have meaningful local problems but rarely have a safe, structured way to work with students. Existing AI tools can generate content quickly, but they do not automatically understand school policy, student identity, evidence quality, or who should be allowed to make a decision.
@@ -29,18 +47,37 @@ Pluto is built around a different contract:
 - Students see clear next steps, grounded sources, and an honest explanation of what the coach can and cannot do.
 - Partners validate usefulness, never individual student grades.
 
+> [!IMPORTANT]
+> Pluto is not an AI chatbot placed in front of a classroom. It is a supervised workflow where every important decision has a person, a policy, and an evidence trail.
+
 ## The product flow
 
-```text
-1. A partner shares a local need
-2. Pluto drafts a learning mission with safeguards
-3. A teacher reviews and approves the mission
-4. The teacher imports a roster and reviews balanced team proposals
-5. Students research, create, collaborate, and record evidence
-6. The teacher assesses individual contribution
-7. The partner validates the community result
-8. Pluto issues a consent-aware Proof snapshot
+```mermaid
+flowchart LR
+    A["Partner shares a local need"] --> B["Pluto drafts a safe mission"]
+    B --> C["Teacher reviews and approves"]
+    C --> D["Roster import + team proposal"]
+    D --> E["Teacher approves assignments"]
+    E --> F["Students create and link evidence"]
+    F --> G["Teacher assesses contribution"]
+    G --> H["Partner validates usefulness"]
+    H --> I["Pluto Proof snapshot"]
+
+    classDef human fill:#baf36d,stroke:#64864e,color:#171b18;
+    classDef system fill:#ece9ff,stroke:#7770b8,color:#171b18;
+    classDef proof fill:#1a211a,stroke:#baf36d,color:#ffffff;
+    class A,C,E,G,H human;
+    class B,D,F system;
+    class I proof;
 ```
+
+| Stage | Owner | Decision |
+| --- | --- | --- |
+| Challenge | Community partner | What local problem is worth solving? |
+| Mission | Pluto + teacher | Is the work safe, useful, and teachable? |
+| Assignment | Teacher | Which students and roles are appropriate? |
+| Evidence | Student + teacher | What supports the claim and contribution? |
+| Outcome | Partner | Was the result useful to the community? |
 
 ## What is implemented
 
@@ -87,6 +124,26 @@ Pluto makes the AI state visible instead of presenting every response as if it c
 
 The coach receives teacher-approved evidence only. When possible, it returns citations to that evidence; when the material is insufficient, it says so. AI mode, policy, model, and evidence provenance are recorded in the audit path.
 
+```mermaid
+flowchart TD
+    R["AI request"] --> P{"School policy"}
+    P -->|"Restricted"| S["Safety and reflection prompts only"]
+    P -->|"Teacher reviewed"| K{"OpenAI key available?"}
+    K -->|"Yes"| L["Live AI + model provenance"]
+    K -->|"No"| T["Template mode + honest label"]
+    L --> E["Approved evidence context"]
+    T --> E
+    S --> O["Bounded coach response"]
+    E --> O
+
+    classDef decision fill:#fff6df,stroke:#9a6c24,color:#171b18;
+    classDef safe fill:#e8f6ec,stroke:#3a8b62,color:#171b18;
+    classDef ai fill:#ece9ff,stroke:#7770b8,color:#171b18;
+    class P,K decision;
+    class S,O safe;
+    class L,T,E ai;
+```
+
 ## Assignment engine
 
 Pluto does not make a black-box student assignment. It creates a proposal that a teacher can inspect and edit.
@@ -131,18 +188,29 @@ The current pilot creates an immutable-style snapshot for verification. A produc
 
 ### Core boundaries
 
-```text
-Browser UI
-   │
-   ├── role-aware React workspaces
-   │
-   └── validated API requests
-          │
-          ├── session + resource authorization
-          ├── AI policy + provenance boundary
-          ├── relational pilot store + migrations
-          └── audit, consent, evidence, and Proof records
+```mermaid
+flowchart TB
+    UI["Responsive React workspaces"] --> API["Validated Next.js API routes"]
+    API --> AUTH["Session + resource authorization"]
+    API --> POLICY["AI policy + provenance boundary"]
+    API --> DATA["Relational pilot store + migrations"]
+    API --> RECORDS["Audit · consent · evidence · Proof"]
+    POLICY --> OPENAI["OpenAI integration"]
+    POLICY --> FALLBACK["Template fallback"]
+    DATA --> SQLITE["SQLite pilot database"]
+
+    classDef ui fill:#baf36d,stroke:#64864e,color:#171b18;
+    classDef api fill:#ece9ff,stroke:#7770b8,color:#171b18;
+    classDef boundary fill:#fff6df,stroke:#9a6c24,color:#171b18;
+    classDef data fill:#e8f6ec,stroke:#3a8b62,color:#171b18;
+    class UI ui;
+    class API api;
+    class AUTH,POLICY,RECORDS boundary;
+    class DATA,OPENAI,FALLBACK,SQLITE data;
 ```
+
+> [!TIP]
+> The diagrams are written in Mermaid inside this README, so they remain editable, versioned, and useful to contributors instead of becoming another unmaintained image asset.
 
 ## Repository map
 
