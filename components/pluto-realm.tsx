@@ -23,38 +23,42 @@ export function PlutoRealm({ program, go }: PlutoRealmProps) {
     <header className="marketing-nav">
       <button className="marketing-brand" onClick={() => go("landing")} aria-label="Pluto home"><Mark compact /><span>PLUTO</span></button>
       <nav aria-label="Explore Pluto">
-        <button onClick={() => go("partner_intake")}>For communities</button>
+        <button onClick={() => go("partner_intake")}>Product</button>
         <button onClick={() => go("teacher_dashboard")}>For schools</button>
-        <button onClick={() => go("proof")}>Proof</button>
+        <button onClick={() => go("proof")}>Pluto Proof</button>
       </nav>
       <button className="marketing-cta" onClick={() => go("partner_intake")}>Start a mission <Arrow /></button>
     </header>
 
     <section className="marketing-hero">
       <div className="marketing-hero-copy">
-        <p className="marketing-eyebrow"><i /> LEARNING IN THE REAL WORLD</p>
-        <h1>Make school<br />matter <em>out there.</em></h1>
-        <p>Pluto turns a community need into a teacher-reviewed mission where students research, make, test, and leave useful work behind.</p>
+        <p className="marketing-eyebrow"><i /> AI FOR REAL-WORLD LEARNING</p>
+        <h1>Turn real problems into <em>real learning.</em></h1>
+        <p>Pluto helps schools turn community challenges into teacher-approved missions where students research, make, test, and leave useful work behind.</p>
         <div className="marketing-actions">
           <button className="marketing-primary" onClick={() => go("partner_intake")}>Build a mission <Arrow /></button>
-          <button className="marketing-link" onClick={() => go("student_mission")}>Explore a live mission <Arrow /></button>
+          <button className="marketing-link" onClick={() => go("teacher_dashboard")}>Explore the workspace <Arrow /></button>
         </div>
         <div className="marketing-proofline"><span>●</span><b>Teacher-approved · Community-connected</b></div>
       </div>
-      <div className="marketing-hero-scene">
-        <Image src="/images/pluto-learning-community-hero.png" alt="A teacher, student, and school leader standing together in a learning community" fill priority sizes="(max-width: 760px) 100vw, 56vw" />
+      <div className="marketing-hero-visual">
+        <div className="hero-float hero-float-left"><span className="hero-float-dot" />Teacher approved</div>
+        <div className="marketing-hero-scene">
+          <Image src="/images/pluto-learning-community-hero.png" alt="A teacher, student, and school leader standing together in a learning community" fill priority sizes="(max-width: 760px) 100vw, 56vw" />
+        </div>
+        <div className="hero-float hero-float-right"><span className="hero-float-check">✓</span>Proof of real work</div>
       </div>
     </section>
 
     <section className="marketing-feature marketing-feature-brief">
       <div className="marketing-feature-copy">
         <p className="marketing-eyebrow"><i /> START WITH WHAT IS REAL</p>
-        <h2>Turn one local problem into a mission people can understand.</h2>
-        <p>Share the need. Pluto shapes the question, roles, plan, safeguards, and evidence path. The teacher makes the final call.</p>
+        <h2>One clear path from community need to student proof.</h2>
+        <p>Share the need. Pluto shapes the question, roles, plan, safeguards, and evidence path. A teacher makes the final call at every important step.</p>
         <button className="marketing-link" onClick={() => go("partner_intake")}>See how a mission takes shape <Arrow /></button>
       </div>
       <div className="mission-preview" aria-label="Live Pluto mission preview">
-        <div className="mission-preview-head"><span>LIVE FIELD MISSION</span><b>KOCHI / 07.26</b></div>
+        <div className="mission-preview-head"><span>MISSION PREVIEW</span><b>KOCHI / 07.26</b></div>
         <article>
           <small>THE QUESTION WE ARE CHASING</small>
           <strong>{program.mission.drivingQuestion}</strong>
