@@ -41,8 +41,8 @@ export function PlutoRealm({ program, go }: PlutoRealmProps) {
         </div>
         <div className="marketing-proofline"><span>●</span><b>Teacher-approved · Community-connected</b></div>
       </div>
-      <div className="marketing-hero-scene" aria-hidden="true">
-        <Image src="/images/pluto-learning-community-hero.png" alt="" fill priority sizes="(max-width: 760px) 100vw, 56vw" />
+      <div className="marketing-hero-scene">
+        <Image src="/images/pluto-learning-community-hero.png" alt="A teacher, student, and school leader standing together in a learning community" fill priority sizes="(max-width: 760px) 100vw, 56vw" />
       </div>
     </section>
 
