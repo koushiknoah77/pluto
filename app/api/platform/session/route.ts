@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     response.cookies.set({ name: SESSION_COOKIE, value: sessionValue(account), httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: 60 * 60 * 8 });
     return response;
   } catch {
-    return NextResponse.json({ error: "The production session secret is not configured." }, { status: 503 });
+    return NextResponse.json({ error: "Production setup is incomplete: add PLUTO_SESSION_SECRET in Vercel Environment Variables, then redeploy." }, { status: 503 });
   }
 }
 

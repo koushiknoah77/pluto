@@ -104,6 +104,14 @@ pnpm test
 pnpm build
 ```
 
+### Vercel deployment
+
+Add PLUTO_SESSION_SECRET in the Vercel project settings for every environment that serves the app, then redeploy. Generate a strong value locally with:
+
+    node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+
+Keep the generated value in Vercel only. Never commit it to .env.example, source control, or a screenshot.
+
 ## Pilot accounts
 
 These local-only accounts all use the password `pluto-demo`:
