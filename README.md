@@ -112,6 +112,8 @@ Add PLUTO_SESSION_SECRET in the Vercel project settings for every environment th
 
 Keep the generated value in Vercel only. Never commit it to .env.example, source control, or a screenshot.
 
+The Vercel demo uses its writable `/tmp` directory for the pilot SQLite store, so demo data can reset when a serverless instance is recycled. Use a hosted relational database adapter before treating Vercel as a durable production deployment.
+
 ## Pilot accounts
 
 These local-only accounts all use the password `pluto-demo`:

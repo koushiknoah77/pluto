@@ -141,18 +141,22 @@ export function PlutoComplete({ initialScreen }: { initialScreen: RouteScreen })
   };
   const selectRole = (next: AppRole) => { if (!account || account.role !== next) { setPendingPage(roleHome(next)); setAuthOpen(true); return; } setRole(next); go(roleHome(next)); };
   const signIn = async (email: string, password: string) => {
-    const response = await fetch("/api/platform/session", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, password }) });
-    const payload = await response.json() as { account?: PilotAccount; error?: string };
-    if (!response.ok || !payload.account) return payload.error || "Sign-in failed.";
-    const databaseResponse = await fetch("/api/platform/program");
-    const database = await databaseResponse.json() as { program?: ProgramState; error?: string };
-    if (!databaseResponse.ok || !database.program) {
-      await fetch("/api/platform/session", { method: "DELETE" });
-      return database.error || "Your workspace is not available until the teacher approves the mission.";
+    try {
+      const response = await fetch("/api/platform/session", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, password }) });
+      const payload = await response.json().catch(() => ({})) as { account?: PilotAccount; error?: string };
+      if (!response.ok || !payload.account) return payload.error || "Sign-in failed.";
+      const databaseResponse = await fetch("/api/platform/program");
+      const database = await databaseResponse.json().catch(() => ({})) as { program?: ProgramState; error?: string };
+      if (!databaseResponse.ok || !database.program) {
+        await fetch("/api/platform/session", { method: "DELETE" }).catch(() => undefined);
+        return database.error || "Your workspace is not available until the teacher approves the mission.";
+      }
+      setProgram(database.program);
+      setAccount(payload.account); setRole(payload.account.role); setAuthOpen(false); setPage(pendingPage && pageRole(pendingPage) === payload.account.role ? pendingPage : roleHome(payload.account.role)); setPendingPage(null);
+      return null;
+    } catch {
+      return "Pluto could not reach the workspace service. Check the deployment health and try again.";
     }
-    setProgram(database.program);
-    setAccount(payload.account); setRole(payload.account.role); setAuthOpen(false); setPage(pendingPage && pageRole(pendingPage) === payload.account.role ? pendingPage : roleHome(payload.account.role)); setPendingPage(null);
-    return null;
   };
   const signOut = async () => { await fetch("/api/platform/session", { method: "DELETE" }); setAccount(null); setPage("landing"); setNavOpen(false); setOnboardingOpen(false); };
   const completeOnboarding = () => { if (account && typeof window !== "undefined") window.localStorage.setItem(`pluto:onboarding:${account.id}`, "done"); setOnboardingOpen(false); };
@@ -187,7 +191,7 @@ function PageHeader({ eyebrow, title, text, actions }: { eyebrow: string; title:
 }
 function Metric({ label, value, detail, tone = "blue" }: { label: string; value: string | number; detail: string; tone?: string }) { return <article className={`metric ${tone}`}><p>{label}</p><strong>{value}</strong><span>{detail}</span></article>; }
 function Card({ children, className = "" }: { children: ReactNode; className?: string }) { return <section className={`os-card ${className}`}>{children}</section>; }
-function AuthModal({ open, onClose, onLogin, account, onSignOut }: { open: boolean; onClose: () => void; onLogin: (email: string, password: string) => Promise<string | null>; account?: PilotAccount | null; onSignOut?: () => Promise<void> }) { const [email, setEmail] = useState("teacher@pluto.local"); const [password, setPassword] = useState("pluto-demo"); const [error, setError] = useState(""); const [loading, setLoading] = useState(false); if (!open) return null; const login = async (event: React.FormEvent) => { event.preventDefault(); setLoading(true); const result = await onLogin(email, password); setLoading(false); setError(result || ""); }; return <div className="auth-backdrop" role="dialog" aria-modal="true" aria-label="Pluto sign in"><form className="auth-modal" onSubmit={login}><button type="button" className="auth-close" onClick={onClose}><X /></button>{account ? <><span className="card-kicker"><UserCheck />Signed-in workspace</span><h2>{account.name}</h2><p>{account.role} · {account.email}</p><button type="button" className="button secondary full" onClick={() => void onSignOut?.()}>Sign out</button><button type="button" className="text-action" onClick={() => void onSignOut?.()}>Switch account</button></> : <><span className="card-kicker"><ShieldCheck />Secure pilot sign-in</span><h2>Enter your Pluto workspace.</h2><p>Use a local pilot account to test role permissions. Demo password: <strong>pluto-demo</strong></p><label>Account<select value={email} onChange={(event) => setEmail(event.target.value)}><option value="partner@pluto.local">Anitha Menon · Partner</option><option value="teacher@pluto.local">Ms. Devi Nair · Teacher</option><option value="student@pluto.local">Asha Raman · Student</option><option value="admin@pluto.local">Ravi Varma · School admin</option></select></label><label>Password<input type="password" value={password} onChange={(event) => setPassword(event.target.value)} /></label>{error && <p className="form-error"><CircleAlert />{error}</p>}<button className="button primary full" disabled={loading}>{loading ? "Signing in…" : "Open secure workspace"}<ArrowRight /></button><small>For a real school, replace these pilot accounts with managed SSO and school-scoped identities.</small></>}</form></div>; }
+function AuthModal({ open, onClose, onLogin, account, onSignOut }: { open: boolean; onClose: () => void; onLogin: (email: string, password: string) => Promise<string | null>; account?: PilotAccount | null; onSignOut?: () => Promise<void> }) { const [email, setEmail] = useState("teacher@pluto.local"); const [password, setPassword] = useState("pluto-demo"); const [error, setError] = useState(""); const [loading, setLoading] = useState(false); if (!open) return null; const login = async (event: React.FormEvent) => { event.preventDefault(); setLoading(true); setError(""); try { setError((await onLogin(email, password)) || ""); } catch { setError("Pluto could not reach the workspace service. Please refresh and try again."); } finally { setLoading(false); } }; return <div className="auth-backdrop" role="dialog" aria-modal="true" aria-label="Pluto sign in"><form className="auth-modal" onSubmit={login}><button type="button" className="auth-close" onClick={onClose}><X /></button>{account ? <><span className="card-kicker"><UserCheck />Signed-in workspace</span><h2>{account.name}</h2><p>{account.role} · {account.email}</p><button type="button" className="button secondary full" onClick={() => void onSignOut?.()}>Sign out</button><button type="button" className="text-action" onClick={() => void onSignOut?.()}>Switch account</button></> : <><span className="card-kicker"><ShieldCheck />Secure pilot sign-in</span><h2>Enter your Pluto workspace.</h2><p>Use a local pilot account to test role permissions. Demo password: <strong>pluto-demo</strong></p><label>Account<select value={email} onChange={(event) => setEmail(event.target.value)}><option value="partner@pluto.local">Anitha Menon · Partner</option><option value="teacher@pluto.local">Ms. Devi Nair · Teacher</option><option value="student@pluto.local">Asha Raman · Student</option><option value="admin@pluto.local">Ravi Varma · School admin</option></select></label><label>Password<input type="password" value={password} onChange={(event) => setPassword(event.target.value)} /></label>{error && <p className="form-error"><CircleAlert />{error}</p>}<button className="button primary full" disabled={loading}>{loading ? "Signing in…" : "Open secure workspace"}<ArrowRight /></button><small>For a real school, replace these pilot accounts with managed SSO and school-scoped identities.</small></>}</form></div>; }
 
 function OnboardingGuide({ account, open, step, setStep, go, onComplete }: { account: PilotAccount | null; open: boolean; step: number; setStep: (step: number) => void; go: (page: ProgramPage) => void; onComplete: () => void }) {
   if (!account || !open) return null;

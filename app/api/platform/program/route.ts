@@ -3,6 +3,9 @@ import { programMutationActionSchema, programStateSchema } from "@/features/plat
 import { requireAccount, resourceAccessResponse } from "@/features/platform/server-auth";
 import { allStudentsHaveConsent, applyProgramMutation, audit, programmeForAccount, readDatabase, studentMissionVisible, updateDatabase } from "@/features/platform/server-store";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const access = await requireAccount();
   if (access.response) return access.response;

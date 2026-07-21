@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { readDatabase } from "@/features/platform/server-store";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const sessionConfigured = process.env.NODE_ENV !== "production" || Boolean(process.env.PLUTO_SESSION_SECRET);
   let storeReady = false;

@@ -2,10 +2,17 @@ import { NextResponse } from "next/server";
 import { loginSchema } from "@/features/platform/contracts";
 import { accountFromSession, demoAccounts, publicAccount, rateLimited, SESSION_COOKIE, sessionValue } from "@/features/platform/server-store";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 export async function GET(request: Request) {
-  const cookie = request.headers.get("cookie")?.match(new RegExp(`${SESSION_COOKIE}=([^;]+)`))?.[1];
-  const account = accountFromSession(cookie);
-  return NextResponse.json({ account });
+  try {
+    const cookie = request.headers.get("cookie")?.match(new RegExp(`${SESSION_COOKIE}=([^;]+)`))?.[1];
+    const account = accountFromSession(cookie);
+    return NextResponse.json({ account }, { headers: { "Cache-Control": "no-store" } });
+  } catch {
+    return NextResponse.json({ account: null, error: "The workspace session is temporarily unavailable." }, { status: 503, headers: { "Cache-Control": "no-store" } });
+  }
 }
 
 export async function POST(request: Request) {

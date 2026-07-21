@@ -7,8 +7,12 @@ import type { PilotDatabase } from "./contracts";
 import { canAccessActiveResource } from "./resource-auth";
 
 export async function sessionAccount(): Promise<PilotAccount | null> {
-  const cookieStore = await cookies();
-  return accountFromSession(cookieStore.get(SESSION_COOKIE)?.value);
+  try {
+    const cookieStore = await cookies();
+    return accountFromSession(cookieStore.get(SESSION_COOKIE)?.value);
+  } catch {
+    return null;
+  }
 }
 
 export async function requireAccount(roles?: AppRole[]) {

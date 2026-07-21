@@ -29,9 +29,17 @@ export type RelationalSnapshot = {
   integrations: unknown[];
 };
 
-const DATA_DIRECTORY = process.env.PLUTO_DATA_DIRECTORY
-  ? path.resolve(process.env.PLUTO_DATA_DIRECTORY)
-  : path.join(process.cwd(), ".pluto-pilot");
+// Vercel's deployed function filesystem is read-only except for /tmp. The
+// pilot store is intentionally lightweight, so keep its demo data writable in
+// the serverless runtime instead of failing every authenticated API request.
+// This is ephemeral storage; a durable production deployment should provide a
+// real database through a future adapter (or an explicit PLUTO_DATA_DIRECTORY).
+const configuredDirectory = process.env.PLUTO_DATA_DIRECTORY?.trim();
+const DATA_DIRECTORY = configuredDirectory
+  ? path.resolve(configuredDirectory)
+  : process.env.VERCEL
+    ? path.join("/tmp", "pluto-pilot")
+    : path.join(process.cwd(), ".pluto-pilot");
 const SQLITE_FILE = path.join(DATA_DIRECTORY, "platform.sqlite");
 
 const migrations: Array<{ name: string; sql: string }> = [
